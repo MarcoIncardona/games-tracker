@@ -1,0 +1,13 @@
+# Rust
+/target
+
+# Node
+/node_modules
+/frontend/node_modules
+/dist
+
+# Environment
+**/.env
+
+# VSCode
+.vscode
