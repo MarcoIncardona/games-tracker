@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: games-tracker
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_USER: games-tracker
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: games
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
