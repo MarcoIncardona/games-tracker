@@ -28,3 +28,8 @@ pub struct ModifyGameResponse {
     pub message: String,
     pub game: Game
 }
+
+#[derive(Debug, Clone, Deserialize, FromRow, Serialize)]
+pub struct DeletedGameMessageResponse {
+    pub message: String
+}

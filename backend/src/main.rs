@@ -1,4 +1,4 @@
-use axum::{extract::{Path, State}, http::{StatusCode}, routing::{get, put}, Json, Router};
+use axum::{extract::{Path, State}, http::StatusCode, routing::{get, put},Json, Router};
 use tokio::net::TcpListener;
 use dotenvy::dotenv;
 use std::env;
@@ -19,7 +19,7 @@ async fn main() {
 
     let app: Router = Router::new()
     .route("/games", get(get_games).post(create_game))
-    .route("/games/{id}", put(update_game))
+    .route("/games/{id}", put(update_game).delete( delete_game))
     .with_state(pool.clone());  
 
     let listener = TcpListener::bind("0.0.0.0:3000").await.unwrap();
@@ -95,6 +95,31 @@ async fn update_game(Path(id): Path<i32>,
                         Ok(Json(response))
                     }
                     Err(err) => {
+                        eprintln!("Errore nel salvataggio: {}", err);
+                        Err((StatusCode::INTERNAL_SERVER_ERROR, "Errore nel salvataggio".into()))
+                    }
+                }
+                }
+
+
+                async fn delete_game(Path(id): Path<i32>,
+                    State(pool): State<PgPool>,
+                ) -> Result<Json<structures::DeletedGameMessageResponse>, (StatusCode, String)> {
+                    let result = sqlx::query(
+                        "DELETE FROM games WHERE id = $1;"
+                    )
+                    .bind(&id)
+                    .execute(&pool)
+                    .await;
+
+                match result {
+                    Ok(_) => {
+                        let response = structures::DeletedGameMessageResponse {
+                            message: "Gioco eliminato con successo".to_string(),
+                        };
+                        Ok(Json(response))
+                    }
+                    Err(err) =>{
                         eprintln!("Errore nel salvataggio: {}", err);
                         Err((StatusCode::INTERNAL_SERVER_ERROR, "Errore nel salvataggio".into()))
                     }
